@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Post — Dashboard</title>
+<meta name="description" content="Open Post self-hosted social media scheduler and autopilot dashboard.">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="/logo.svg" alt="" width="28" height="28"><strong>Open Post</strong><span id="mode" class="pill"></span></div>
+  <nav id="tabs">
+    <button data-tab="overview" class="active">Overview</button>
+    <button data-tab="compose">Compose</button>
+    <button data-tab="queue">Queue</button>
+    <button data-tab="calendar">Calendar</button>
+    <button data-tab="channels">Channels</button>
+    <button data-tab="autopilot">Autopilot</button>
+  </nav>
+</header>
+<main>
+  <section id="tab-overview" class="tab active">
+    <h1>Overview</h1>
+    <p class="muted">Every number here is computed from your own database. Nothing is pre-filled.</p>
+    <div id="stats" class="grid4"></div>
+    <div class="grid2">
+      <div class="card"><h3>Next up</h3><div id="nextUp" class="list"></div></div>
+      <div class="card"><h3>Deliveries per day</h3><div id="daily" class="bars"></div></div>
+    </div>
+    <div class="card" id="onboarding" hidden>
+      <h3>Get started</h3>
+      <ol>
+        <li>Add a channel in <a href="#" data-goto="channels">Channels</a>. Use <b>sandbox</b> to try things with nothing leaving your machine.</li>
+        <li>For real networks, set the env vars shown on the channel card (e.g. <code>X_API_KEY</code>) and restart.</li>
+        <li>Write a post in <a href="#" data-goto="compose">Compose</a>, or let <a href="#" data-goto="autopilot">Autopilot</a> fill your cadence slots.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="tab-compose" class="tab">
+    <h1 id="composeTitle">Compose</h1>
+    <div class="grid2">
+      <div class="card">
+        <label>Core content<textarea id="cContent" rows="7" placeholder="What do you want to say?"></textarea></label>
+        <div class="row"><input id="cTopic" placeholder="Topic for AI draft (optional)"><select id="cPersona"></select><button id="btnAi" class="ghost">Draft with AI</button></div>
+        <p id="aiInfo" class="muted small"></p>
+        <h4>Per-platform versions <span class="muted small">(optional; blank = use core content)</span></h4>
+        <label>X <span class="count" data-for="oX" data-max="280"></span><textarea id="oX" rows="3" placeholder="Split a thread with a line containing ---"></textarea></label>
+        <label>LinkedIn <span class="count" data-for="oLinkedin" data-max="3000"></span><textarea id="oLinkedin" rows="3"></textarea></label>
+        <label>Reddit title<input id="oRedditTitle" maxlength="300"></label>
+        <label>Reddit body<textarea id="oReddit" rows="3"></textarea></label>
+        <label>Bluesky <span class="count" data-for="oBluesky" data-max="300"></span><textarea id="oBluesky" rows="2"></textarea></label>
+      </div>
+      <div class="card">
+        <h4>Channels</h4><div id="cChannels" class="checks"></div>
+        <label>Publish at<input id="cWhen" type="datetime-local"></label>
+        <label>Tags (comma separated)<input id="cTags"></label>
+        <label class="inline"><input id="cEvergreen" type="checkbox"> Evergreen</label>
+        <div class="row">
+          <button id="btnSchedule">Schedule</button>
+          <button id="btnDraft" class="ghost">Save draft</button>
+          <button id="btnNow" class="warn">Publish now</button>
+          <button id="btnReset" class="ghost">Clear</button>
+        </div>
+        <h4>Preview</h4><div id="preview"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-queue" class="tab">
+    <h1>Queue</h1>
+    <div class="row"><select id="qStatus"><option value="">All statuses</option><option>draft</option><option>scheduled</option><option>publishing</option><option>published</option><option>partial</option><option>failed</option></select><button id="btnRefresh" class="ghost">Refresh</button></div>
+    <div id="queue" class="list"></div>
+  </section>
+
+  <section id="tab-calendar" class="tab">
+    <h1>Calendar</h1>
+    <div class="row"><button id="calPrev" class="ghost">‹</button><strong id="calLabel"></strong><button id="calNext" class="ghost">›</button></div>
+    <div id="calendar" class="cal"></div>
+  </section>
+
+  <section id="tab-channels" class="tab">
+    <h1>Channels</h1>
+    <p class="muted">Secrets are never stored in the database. Each channel reads them from environment variables with its prefix, e.g. <code>X_API_KEY</code> or <code>X_BRAND2_API_KEY</code>.</p>
+    <div class="card">
+      <div class="row wrap">
+        <select id="chType"></select>
+        <input id="chName" placeholder="Display name">
+        <input id="chHandle" placeholder="Handle (optional)">
+        <input id="chPrefix" placeholder="Env prefix (default by type)">
+        <input id="chExtra" placeholder="">
+        <button id="btnAddCh">Add channel</button>
+      </div>
+    </div>
+    <div id="channels" class="list"></div>
+  </section>
+
+  <section id="tab-autopilot" class="tab">
+    <h1>Autopilot</h1>
+    <div class="grid2">
+      <div class="card">
+        <label class="inline"><input id="apEnabled" type="checkbox"> Enabled (fills empty cadence slots every 5 minutes)</label>
+        <label>Persona<select id="apPersona"></select></label>
+        <label>AI provider<select id="apProvider"><option value="">Server default</option><option>heuristic</option><option>openai</option><option>anthropic</option><option>gemini</option><option>ollama</option></select></label>
+        <label>Cadence (HH:MM, comma separated, server time)<input id="apCadence"></label>
+        <label>Plan ahead (days)<input id="apHorizon" type="number" min="1" max="14"></label>
+        <label class="inline"><input id="apRecycle" type="checkbox"> Recycle evergreen topics</label>
+        <h4>Target channels</h4><div id="apChannels" class="checks"></div>
+        <div class="row"><button id="btnApSave">Save</button><button id="btnApGen" class="ghost">Generate one now</button><button id="btnApFill" class="ghost">Fill slots now</button></div>
+      </div>
+      <div class="card">
+        <h3>Topic queue</h3>
+        <div class="row"><input id="tTitle" placeholder="Topic"><input id="tPillar" placeholder="Pillar"><label class="inline"><input id="tEver" type="checkbox"> evergreen</label><button id="btnAddTopic" class="ghost">Add</button></div>
+        <div id="topics" class="list"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>

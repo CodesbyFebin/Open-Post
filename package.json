@@ -1,33 +1,25 @@
 {
   "name": "open-post",
-  "version": "1.0.0",
-  "description": "Open Post - Run your social media on autopilot. Free, lightweight, standalone alternative to Postiz with zero Temporal/Redis bloat.",
+  "version": "1.1.0",
+  "description": "Free, self-hosted social media scheduler and AI autopilot. One Node process, SQLite, no Redis or Temporal. Publishes to X, LinkedIn, Reddit, Bluesky and webhooks.",
   "main": "server.js",
+  "bin": { "open-post": "cli.js" },
   "type": "commonjs",
+  "engines": { "node": ">=20.12" },
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "autopilot": "node autopilot.js --run-once",
-    "seed": "node seed.js"
+    "tick": "node cli.js tick",
+    "test": "node --test test/*.test.js",
+    "lint": "eslint ."
   },
-  "keywords": [
-    "social-media",
-    "scheduler",
-    "autopilot",
-    "postiz-alternative",
-    "agentic-ai",
-    "twitter",
-    "linkedin",
-    "reddit",
-    "bluesky",
-    "standalone"
-  ],
-  "author": "Open Post Contributors",
+  "keywords": ["social-media", "scheduler", "social-media-scheduler", "autopilot", "postiz-alternative", "buffer-alternative", "self-hosted", "sqlite", "twitter", "x-api", "linkedin", "reddit", "bluesky", "atproto", "ollama", "openai", "ai-agent", "open-source"],
+  "author": "CodesbyFebin and Open Post contributors",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.19.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "node-cron": "^3.0.3"
-  }
+  "homepage": "https://codesbyfebin.github.io/Open-Post/",
+  "repository": { "type": "git", "url": "git+https://github.com/CodesbyFebin/Open-Post.git" },
+  "bugs": { "url": "https://github.com/CodesbyFebin/Open-Post/issues" },
+  "dependencies": { "express": "^4.21.2" },
+  "optionalDependencies": { "better-sqlite3": "^11.7.0" },
+  "devDependencies": { "@eslint/js": "^9.17.0", "eslint": "^9.17.0", "globals": "^15.14.0" }
 }

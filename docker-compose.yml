@@ -1,23 +1,20 @@
-version: '3.8'
-
 services:
   open-post:
     build: .
-    container_name: open-post-app
+    image: open-post:local
+    container_name: open-post
     restart: unless-stopped
     ports:
       - "3000:3000"
+    env_file:
+      - path: .env
+        required: false
     environment:
       - PORT=3000
-      - NODE_ENV=production
-      - DRY_RUN=false
-      - AI_PROVIDER=heuristic # Options: heuristic, openai, anthropic, ollama
-      # - AI_API_KEY=your_openai_or_anthropic_api_key
-      # - OLLAMA_URL=http://host.docker.internal:11434
+      - DATA_DIR=/app/data
     volumes:
       - ./data:/app/data
     deploy:
       resources:
         limits:
-          memory: 128M
-          cpus: '0.5'
+          memory: 256M
