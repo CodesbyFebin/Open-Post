@@ -38,4 +38,4 @@ Everything is configured with environment variables, usually through `.env`. See
 
 ## Channel credentials
 
-Each channel has an **env prefix** (default `X`, `LINKEDIN`, `REDDIT`, `BLUESKY`, `WEBHOOK`). The driver reads `<PREFIX>_<KEY>`. To run a second X account, create a channel with prefix `X_BRAND2` and set `X_BRAND2_API_KEY`, `X_BRAND2_API_SECRET` and so on. See [[Channels]] for each network's keys.
+Each channel has an **env prefix** (default `X`, `LINKEDIN`, `REDDIT`, `BLUESKY`, `WEBHOOK`). The driver reads `<PREFIX>_<KEY>`. To run a second X account, create a channel with prefix `X_BRAND2` and set `X_BRAND2_API_KEY`, `X_BRAND2_API_SECRET` and so on. See [Channels](Channels) for each network's keys.

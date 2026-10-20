@@ -2,76 +2,100 @@
 
 ## Requirements
 
-- **Node.js 20.12 or newer** (22 LTS recommended: it ships `node:sqlite`, so no native module is needed), **or** Docker
-- About 100 MB of RAM and a few MB of disk
+| | Minimum | Notes |
+| --- | --- | --- |
+| Node.js | 20.12 | 22 LTS or newer is recommended: it has a built-in `node:sqlite`, so nothing needs compiling |
+| Or Docker | Compose v2.24+ | The image is `node:26-alpine` |
+| RAM | ~100 MB | About 70 MB RSS measured at idle on Node 20 |
+| Disk | a few MB | Plus your database |
 
-## Docker Compose (recommended)
+Open Post needs outbound HTTPS to the networks you use (`api.twitter.com`, `api.linkedin.com`, `www.reddit.com` / `oauth.reddit.com`, `bsky.social` or your PDS) and to your AI provider, if any.
+
+## Docker Compose
 
 ```bash
 git clone https://github.com/CodesbyFebin/Open-Post.git
 cd Open-Post
-cp .env.example .env     # edit it
+cp .env.example .env        # edit it: see Configuration
 docker compose up -d --build
-docker compose logs -f
+docker compose logs -f open-post
 ```
 
-Data is stored in `./data` on the host. The container runs as the unprivileged `node` user and has a healthcheck on `/api/health`.
+- Data is stored in `./data` on the host, mounted at `/app/data`.
+- The container runs as the unprivileged `node` user.
+- A healthcheck calls `/api/health` every 30 seconds.
+- To upgrade: `git pull && docker compose up -d --build`.
 
 ## Node.js
 
 ```bash
 git clone https://github.com/CodesbyFebin/Open-Post.git
 cd Open-Post
-npm install
+npm install            # Express, plus optional better-sqlite3
 cp .env.example .env
-npm start
+npm start              # or: npm run dev (auto-restart)
 ```
 
-`server.js` loads `.env` from the working directory automatically on Node ≥ 20.12.
+`server.js` loads `.env` from the current directory (Node 20.12+ `process.loadEnvFile`).
 
-### Which storage engine will I get?
+### Storage engine selection
 
-`GET /api/health` reports `store`:
+When `STORE_DRIVER=auto` (the default), the engine is chosen in this order:
 
-| Value | When |
-| --- | --- |
-| `node:sqlite` | Node 22.5+ (no flag needed on 22.13+) |
-| `better-sqlite3` | Older Node with the optional dependency built |
-| `json` | Neither is available, or `STORE_DRIVER=json` |
+1. `node:sqlite`, available on Node 22.5+
+2. `better-sqlite3`, if the optional dependency installed and built
+3. `json`: `data/open-post.json`, written atomically
 
-All three use the same API. To force SQLite and fail if it's missing, set `STORE_DRIVER=sqlite`.
+`/api/health` reports which one is in use. To refuse to start without SQLite, set `STORE_DRIVER=sqlite`.
 
-## systemd
+## VPS (Ubuntu/Debian) with systemd
+
+```bash
+# as root
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt-get install -y nodejs git
+useradd --system --create-home --home-dir /opt/open-post openpost
+sudo -u openpost git clone https://github.com/CodesbyFebin/Open-Post.git /opt/open-post/app
+cd /opt/open-post/app && sudo -u openpost npm install --omit=dev
+sudo -u openpost cp .env.example .env && chmod 600 .env   # then edit it
+```
+
+`/etc/systemd/system/open-post.service`:
 
 ```ini
-# /etc/systemd/system/open-post.service
 [Unit]
 Description=Open Post
 After=network-online.target
+Wants=network-online.target
 
 [Service]
-WorkingDirectory=/opt/open-post
-EnvironmentFile=/opt/open-post/.env
+User=openpost
+WorkingDirectory=/opt/open-post/app
 ExecStart=/usr/bin/node server.js
 Restart=on-failure
-User=openpost
+Environment=NODE_ENV=production
 
 [Install]
 WantedBy=multi-user.target
 ```
 
 ```bash
-sudo systemctl daemon-reload && sudo systemctl enable --now open-post
+systemctl daemon-reload && systemctl enable --now open-post
+journalctl -u open-post -f
 ```
 
-## Cron-only mode
-
-If you don't want a long-running scheduler, set `SCHEDULER_DISABLED=true` on the server (or don't run it at all) and call:
-
-```cron
-* * * * * cd /opt/open-post && /usr/bin/node cli.js tick >> tick.log 2>&1
-```
+Then put HTTPS in front of it: see [Deployment](Deployment).
 
 ## Raspberry Pi
 
-Use Node 22 (arm64) and the Node.js instructions above. The built-in `node:sqlite` means nothing has to be compiled.
+Use 64-bit Raspberry Pi OS with Node 22 (arm64) and follow the VPS steps. Because `node:sqlite` is built in, nothing native has to compile on the Pi. Docker works too.
+
+## Cron-only mode (no long-running scheduler)
+
+Run the server with `SCHEDULER_DISABLED=true`, or don't run it at all, and trigger one pass per minute:
+
+```cron
+* * * * * cd /opt/open-post/app && /usr/bin/node cli.js tick >> /var/log/open-post-tick.log 2>&1
+```
+
+`cli.js tick` fills autopilot slots (if autopilot is enabled) and publishes every post that's due.
