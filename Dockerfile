@@ -1,5 +1,5 @@
 # Open Post — single container. Node 22 ships node:sqlite, so no native build is needed.
-FROM node:22-alpine
+FROM node:26-alpine
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 DATA_DIR=/app/data
 COPY package*.json ./
