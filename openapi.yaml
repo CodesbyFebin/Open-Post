@@ -1,0 +1,157 @@
+openapi: 3.1.0
+info:
+  title: Open Post API
+  version: 1.1.0
+  description: "REST API of a self-hosted Open Post server. If API_TOKEN is set, every endpoint except /api/health requires the header Authorization: Bearer <API_TOKEN>."
+  license: { name: MIT, identifier: MIT }
+servers:
+  - url: http://localhost:3000
+security:
+  - bearer: []
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  schemas:
+    Error: { type: object, properties: { error: { type: string } } }
+    Overrides:
+      type: object
+      properties:
+        x: { type: object, properties: { content: { type: string }, thread: { type: array, items: { type: string } } } }
+        linkedin: { type: object, properties: { content: { type: string } } }
+        reddit: { type: object, properties: { title: { type: string }, content: { type: string } } }
+        bluesky: { type: object, properties: { content: { type: string } } }
+    ChannelInput:
+      type: object
+      required: [type, name]
+      properties:
+        type: { type: string, enum: [x, twitter, linkedin, reddit, bluesky, webhook, sandbox] }
+        name: { type: string }
+        handle: { type: string }
+        envPrefix: { type: string, pattern: '^[A-Z][A-Z0-9_]*$', description: 'Env var prefix for secrets, e.g. X or X_BRAND2' }
+        config: { type: object, description: 'Non-secret settings: subreddit (reddit), url (webhook)' }
+        enabled: { type: boolean }
+    Channel:
+      allOf:
+        - $ref: '#/components/schemas/ChannelInput'
+        - type: object
+          properties:
+            id: { type: string }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+            credentials:
+              type: object
+              description: Readiness only. Secret values are never returned.
+              properties: { ready: { type: boolean }, prefix: { type: string }, missing: { type: array, items: { type: string } } }
+    PostInput:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string }
+        platformOverrides: { $ref: '#/components/schemas/Overrides' }
+        channelIds: { type: array, items: { type: string } }
+        scheduledFor: { type: string, format: date-time }
+        status: { type: string, enum: [draft, scheduled] }
+        tags: { type: array, items: { type: string } }
+        evergreen: { type: boolean }
+    Delivery:
+      type: object
+      properties:
+        channelId: { type: string }
+        channelType: { type: string }
+        ok: { type: boolean }
+        sandbox: { type: boolean }
+        remoteId: { type: [string, 'null'] }
+        url: { type: [string, 'null'] }
+        error: { type: string }
+        at: { type: string, format: date-time }
+    Post:
+      allOf:
+        - $ref: '#/components/schemas/PostInput'
+        - type: object
+          properties:
+            id: { type: string }
+            status: { type: string, enum: [draft, scheduled, publishing, published, partial, failed] }
+            source: { type: string, enum: [manual, autopilot] }
+            attempts: { type: integer }
+            deliveries: { type: array, items: { $ref: '#/components/schemas/Delivery' } }
+            lastError: { type: [string, 'null'] }
+            meta: { type: object }
+            publishedAt: { type: [string, 'null'], format: date-time }
+    Topic:
+      type: object
+      properties: { id: { type: string }, title: { type: string }, pillar: { type: string }, evergreen: { type: boolean }, usedCount: { type: integer }, lastUsedAt: { type: [string, 'null'] } }
+    Autopilot:
+      type: object
+      properties:
+        enabled: { type: boolean }
+        persona: { type: string, enum: [thought_leader, indie_hacker, technical_architect, contrarian_analyst, viral_storyteller] }
+        provider: { type: [string, 'null'], enum: [heuristic, openai, anthropic, gemini, ollama, null] }
+        cadence: { type: array, items: { type: string, pattern: '^([01]\d|2[0-3]):[0-5]\d$' } }
+        horizonDays: { type: integer, minimum: 1, maximum: 14 }
+        channelIds: { type: array, items: { type: string } }
+        topics: { type: array, items: { $ref: '#/components/schemas/Topic' } }
+        recycleEvergreen: { type: boolean }
+    Generated:
+      type: object
+      properties: { content: { type: string }, platformOverrides: { $ref: '#/components/schemas/Overrides' }, tags: { type: array, items: { type: string } }, generatedBy: { type: string }, fallbackReason: { type: string } }
+  responses:
+    BadRequest: { description: Validation error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound: { description: Not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+  parameters:
+    id: { name: id, in: path, required: true, schema: { type: string } }
+paths:
+  /api/health:
+    get: { summary: Liveness, security: [], responses: { '200': { description: OK } } }
+  /api/config:
+    get: { summary: 'Server capabilities: store, sandbox mode, channel types and personas', responses: { '200': { description: OK } } }
+  /api/channels:
+    get: { summary: List channels, responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Channel' } } } } } } }
+    post:
+      summary: Create a channel (secrets are rejected; use env vars)
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ChannelInput' } } } }
+      responses: { '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Channel' } } } }, '400': { $ref: '#/components/responses/BadRequest' } }
+  /api/channels/{id}:
+    parameters: [{ $ref: '#/components/parameters/id' }]
+    get: { summary: Get channel, responses: { '200': { description: OK }, '404': { $ref: '#/components/responses/NotFound' } } }
+    put: { summary: Update channel, requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/ChannelInput' } } } }, responses: { '200': { description: OK } } }
+    delete: { summary: Delete channel, responses: { '200': { description: OK }, '404': { $ref: '#/components/responses/NotFound' } } }
+  /api/posts:
+    get:
+      summary: List posts (sorted by scheduledFor)
+      parameters:
+        - { name: status, in: query, schema: { type: string } }
+        - { name: channelId, in: query, schema: { type: string } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Post' } } } } } }
+    post:
+      summary: Create a post
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/PostInput' } } } }
+      responses: { '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Post' } } } }, '400': { $ref: '#/components/responses/BadRequest' } }
+  /api/posts/{id}:
+    parameters: [{ $ref: '#/components/parameters/id' }]
+    get: { summary: Get post, responses: { '200': { description: OK }, '404': { $ref: '#/components/responses/NotFound' } } }
+    put: { summary: Update post (409 while publishing), requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/PostInput' } } } }, responses: { '200': { description: OK }, '409': { description: Publishing in progress } } }
+    delete: { summary: Delete post, responses: { '200': { description: OK } } }
+  /api/posts/{id}/publish-now:
+    parameters: [{ $ref: '#/components/parameters/id' }]
+    post:
+      summary: Publish immediately to every target channel that has not succeeded yet
+      responses: { '200': { description: Result, content: { application/json: { schema: { type: object, properties: { post: { $ref: '#/components/schemas/Post' }, results: { type: array, items: { $ref: '#/components/schemas/Delivery' } } } } } } } }
+  /api/autopilot:
+    get: { summary: Get autopilot settings, responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Autopilot' } } } } } }
+    put: { summary: Update autopilot settings (partial), requestBody: { content: { application/json: { schema: { $ref: '#/components/schemas/Autopilot' } } } }, responses: { '200': { description: OK }, '400': { $ref: '#/components/responses/BadRequest' } } }
+  /api/autopilot/generate-now:
+    post:
+      summary: Generate one post from the next eligible topic and schedule it
+      requestBody: { content: { application/json: { schema: { type: object, properties: { topicId: { type: string }, scheduledFor: { type: string, format: date-time } } } } } }
+      responses: { '201': { description: Created }, '400': { $ref: '#/components/responses/BadRequest' } }
+  /api/autopilot/fill:
+    post: { summary: Fill every empty cadence slot within the horizon, responses: { '200': { description: OK } } }
+  /api/generate:
+    post:
+      summary: Generate a draft without saving it
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [topic], properties: { topic: { type: string }, pillar: { type: string }, persona: { type: string }, provider: { type: string } } } } } }
+      responses: { '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Generated' } } } } }
+  /api/analytics:
+    get: { summary: Counts computed from the local database, responses: { '200': { description: OK } } }

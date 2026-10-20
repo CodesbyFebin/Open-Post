@@ -1,0 +1,29 @@
+# Open Post
+
+> Open Post is a free, MIT-licensed, self-hosted social media scheduler and AI autopilot. One Node.js process serves a REST API, a web dashboard and an in-process scheduler, and stores data in SQLite (JSON fallback). It publishes to X (Twitter) API v2, LinkedIn UGC, Reddit, Bluesky (AT Protocol) and signed webhooks, and it can draft posts with OpenAI, Anthropic, Gemini, Ollama or an offline heuristic engine. Secrets come only from environment variables.
+
+Key facts:
+- Runtime: Node.js 20.12+ (Node 22 recommended for built-in node:sqlite) or Docker
+- Start: `npm install && npm start`, or `docker compose up -d`, then open http://localhost:3000
+- Sandbox: `SANDBOX_MODE=true` routes all channels to a no-network sandbox driver
+- Auth: optional `API_TOKEN` bearer token for /api/*
+- Channel credentials: env vars named `<PREFIX>_<KEY>`, e.g. `X_API_KEY`, `LINKEDIN_ACCESS_TOKEN`, `BLUESKY_APP_PASSWORD`
+
+## Docs
+- [README](https://github.com/CodesbyFebin/Open-Post/blob/main/README.md): overview, quickstart, configuration, FAQ
+- [OpenAPI spec](https://github.com/CodesbyFebin/Open-Post/blob/main/openapi.yaml): every REST endpoint
+- [Wiki](https://github.com/CodesbyFebin/Open-Post/wiki): installation, configuration, channels, autopilot, API, deployment, FAQ
+- [Docs folder](https://github.com/CodesbyFebin/Open-Post/tree/main/docs): same pages as the wiki, versioned with the code
+- [Website](https://codesbyfebin.github.io/Open-Post/): landing page and quickstart
+
+## Source
+- [server.js](https://github.com/CodesbyFebin/Open-Post/blob/main/server.js): entrypoint
+- [src/app.js](https://github.com/CodesbyFebin/Open-Post/blob/main/src/app.js): Express routes
+- [src/service.js](https://github.com/CodesbyFebin/Open-Post/blob/main/src/service.js): posts, channels, publishing, retries, autopilot
+- [src/drivers/index.js](https://github.com/CodesbyFebin/Open-Post/blob/main/src/drivers/index.js): X, LinkedIn, Reddit, Bluesky, webhook, sandbox drivers
+- [src/llm/index.js](https://github.com/CodesbyFebin/Open-Post/blob/main/src/llm/index.js): AI providers and heuristic generator
+- [src/store.js](https://github.com/CodesbyFebin/Open-Post/blob/main/src/store.js): SQLite / JSON persistence
+
+## Optional
+- [AUDIT.md](https://github.com/CodesbyFebin/Open-Post/blob/main/AUDIT.md): what was mocked in v1.0 and how it was replaced
+- [CHANGELOG.md](https://github.com/CodesbyFebin/Open-Post/blob/main/CHANGELOG.md)

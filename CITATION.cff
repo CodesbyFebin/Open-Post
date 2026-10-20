@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use Open Post in your work, please cite it as below."
+title: "Open Post: a self-hosted social media scheduler and AI autopilot"
+type: software
+authors:
+  - alias: CodesbyFebin
+    name: "Open Post contributors"
+repository-code: "https://github.com/CodesbyFebin/Open-Post"
+url: "https://codesbyfebin.github.io/Open-Post/"
+license: MIT
+version: 1.1.0
+date-released: 2026-10-21
+keywords:
+  - social media scheduler
+  - self-hosted
+  - autopilot
+  - bluesky
+  - open source

@@ -1,0 +1,30 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes: { label: What happened?, description: Include the exact error message from the dashboard or server log. }
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes: { label: Steps to reproduce, placeholder: "1. ...\n2. ...\n3. ..." }
+    validations: { required: true }
+  - type: dropdown
+    id: channel
+    attributes: { label: Channel type, multiple: true, options: [x, linkedin, reddit, bluesky, webhook, sandbox, not channel related] }
+  - type: input
+    id: version
+    attributes: { label: Open Post version / commit }
+    validations: { required: true }
+  - type: dropdown
+    id: runtime
+    attributes: { label: How do you run it?, options: [Docker, Node.js 20, Node.js 22, Node.js 24, Other] }
+  - type: input
+    id: store
+    attributes: { label: Store (from /api/health), placeholder: node:sqlite / better-sqlite3 / json }
+  - type: checkboxes
+    id: secrets
+    attributes:
+      label: Privacy
+      options: [{ label: I removed tokens, passwords and other secrets from logs before pasting, required: true }]
