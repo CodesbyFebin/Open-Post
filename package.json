@@ -1,0 +1,33 @@
+{
+  "name": "open-post",
+  "version": "1.0.0",
+  "description": "Open Post - Run your social media on autopilot. Free, lightweight, standalone alternative to Postiz with zero Temporal/Redis bloat.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "autopilot": "node autopilot.js --run-once",
+    "seed": "node seed.js"
+  },
+  "keywords": [
+    "social-media",
+    "scheduler",
+    "autopilot",
+    "postiz-alternative",
+    "agentic-ai",
+    "twitter",
+    "linkedin",
+    "reddit",
+    "bluesky",
+    "standalone"
+  ],
+  "author": "Open Post Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3"
+  }
+}
