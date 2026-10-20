@@ -23,7 +23,7 @@ jobs:
       - run: cp ../llms.txt public/llms.txt
       - run: npx next build
         env: { NEXT_PUBLIC_BASE_PATH: /Open-Post, NEXT_TELEMETRY_DISABLED: '1' }
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with: { path: site/out }
   deploy:
     needs: build
