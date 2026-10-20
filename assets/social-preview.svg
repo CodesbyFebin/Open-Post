@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070b18"/><stop offset="1" stop-color="#151c3a"/></linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <g transform="translate(96,150)">
+    <rect width="128" height="128" rx="28" fill="url(#g)"/>
+    <circle cx="64" cy="64" r="30" fill="none" stroke="#fff" stroke-width="10"/>
+    <path d="M64 34v30l20 12" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="256" y="232" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="96" font-weight="800" fill="#e8edf7">Open Post</text>
+  <text x="96" y="370" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="44" font-weight="600" fill="url(#g)">Self-hosted social media scheduler + AI autopilot</text>
+  <text x="96" y="440" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#9aa6c2">X · LinkedIn · Reddit · Bluesky · Webhooks</text>
+  <text x="96" y="490" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="32" fill="#9aa6c2">One Node process · SQLite · No Redis, no Temporal · MIT</text>
+  <text x="96" y="580" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="26" fill="#6b7899">github.com/CodesbyFebin/Open-Post</text>
+</svg>
