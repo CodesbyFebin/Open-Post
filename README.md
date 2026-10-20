@@ -1,9 +1,9 @@
 <div align="center">
 
-<img src="assets/logo.svg" alt="Open Post logo" width="96" height="96">
+<img src="assets/banner.png" alt="Open Post — Social media on autopilot. On your server. Compose once and publish to X, LinkedIn, Reddit, Bluesky and webhooks from one Node process and one SQLite file." width="100%">
 
 # Open Post
-<img width="1942" height="809" alt="image" src="https://github.com/user-attachments/assets/2563f363-7ab5-4041-921d-b4ca3f49a04a" />
+
 **Run your social media on autopilot, on your own server.**
 
 A free, MIT-licensed, self-hosted social media scheduler and AI autopilot for **X, LinkedIn, Reddit, Bluesky and webhooks**.<br>

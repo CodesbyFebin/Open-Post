@@ -14,8 +14,13 @@ export default function Home() {
   return (
     <>
       <div className="hero wrap">
-        <h1>Run your social media on <span className="grad">autopilot</span>, on your own server.</h1>
-        <p className="muted">Open Post is a free, MIT-licensed scheduler and AI autopilot for X, LinkedIn, Reddit, Bluesky and webhooks. It runs as one small Node.js process with SQLite. No Redis, no Temporal, no paid tier.</p>
+        <h1 className="sr">Open Post: social media on autopilot, on your server</h1>
+        <picture>
+          <source type="image/webp" srcSet={`${asset('/banner-960.webp')} 960w, ${asset('/banner.webp')} 1600w`} sizes="(max-width: 1120px) 100vw, 1080px" />
+          <img className="banner" src={asset('/banner.png')} width="1600" height="666" fetchPriority="high"
+            alt="Open Post banner: Social media on autopilot. On your server. Illustration of a post being composed once and sent to X, LinkedIn, Reddit, Bluesky and webhooks from one Node process and one SQLite file." />
+        </picture>
+        <p className="muted">Free, MIT-licensed scheduler and AI autopilot for X, LinkedIn, Reddit, Bluesky and webhooks. One small Node.js process with SQLite. No Redis, no Temporal, no paid tier.</p>
         <div className="ctas"><Link className="btn" href="/docs/">Quickstart</Link><a className="btn ghost" href={REPO}>View on GitHub</a></div>
       </div>
       <section className="wrap"><img className="shot" src={asset('/screenshots/queue.png')} alt="Open Post dashboard queue view" /></section>
