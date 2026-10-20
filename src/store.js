@@ -50,7 +50,7 @@ function openJson(file) {
   let data = {};
   if (fs.existsSync(file)) {
     try { data = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (err) {
-      throw new Error(`Corrupt JSON store at ${file}: ${err.message}`);
+      throw new Error(`Corrupt JSON store at ${file}: ${err.message}`, { cause: err });
     }
   }
   const flush = () => {
