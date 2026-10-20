@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix: { node: [20, 22, 24] }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with: { node-version: '${{ matrix.node }}', cache: npm }
       - run: npm ci
@@ -23,7 +23,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker build -t open-post:ci .
       - run: |
           docker run -d --name op -p 3000:3000 -e SANDBOX_MODE=true open-post:ci
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: site } }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm, cache-dependency-path: site/package-lock.json }
       - run: npm ci && npx next build
