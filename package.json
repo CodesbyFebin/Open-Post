@@ -19,7 +19,7 @@
   "homepage": "https://codesbyfebin.github.io/Open-Post/",
   "repository": { "type": "git", "url": "git+https://github.com/CodesbyFebin/Open-Post.git" },
   "bugs": { "url": "https://github.com/CodesbyFebin/Open-Post/issues" },
-  "dependencies": { "express": "^4.21.2" },
+  "dependencies": { "express": "^5.3.0" },
   "optionalDependencies": { "better-sqlite3": "^11.7.0" },
   "devDependencies": { "@eslint/js": "^10.0.1", "eslint": "^10.13.0", "globals": "^17.13.0" }
 }
